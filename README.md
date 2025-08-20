@@ -1,3 +1,4 @@
+*english version below*
 ## Esercizio 1
 
 ### Linguaggio richiesto: C
@@ -289,3 +290,251 @@ Ogni record contiene i seguenti dati:
 Un'implementazione corretta dell'algoritmo di Dijkstra, eseguita sui dati
 contenuti nel file italian\_dist\_graph.csv, dovrebbe determinare un cammino
 minimo tra "torino" e "catania" lungo ~1207.68 Km.
+
+
+---
+### Exercise 1  
+
+### Required Language: C  
+
+---
+
+### Task  
+
+Implement a library that provides two sorting algorithms: `Quick Sort` and `Binary Insertion Sort`.  
+By `Binary Insertion Sort`, we mean a variant of the `Insertion Sort` algorithm where the insertion position of the current element within the sorted part of the array is determined using **binary search**.  
+
+For the `Quick Sort` implementation, the strategy for choosing the `pivot` must be studied and discussed in the final report.  
+
+The code implementing both `Quick Sort` and `Binary Insertion Sort` must be **generic**. Additionally, the library must allow the specification of a custom comparison criterion (passed as input).  
+
+---
+
+### Unit Testing  
+
+Implement unit tests for the library according to the guidelines provided in the **Unit Testing** document.  
+
+---
+
+### Usage of the Sorting Library  
+
+The file `records.csv` (compressed and available at the link below):  
+
+```
+https://datacloud.di.unito.it/index.php/s/X7qC8JSLNRtLxPC
+```
+
+
+contains **20 million records** to be sorted.  
+
+Each record is stored on a single line and includes the following fields:  
+
+- **id**: (integer) unique record identifier  
+- **field1**: (string) contains words extracted from *Divine Comedy* (values contain neither spaces nor commas)  
+- **field2**: (integer)  
+- **field3**: (floating point)  
+
+The format is standard CSV: fields are separated by commas, records are separated by `\n`.  
+
+Using the implemented `Quick Sort` and `Binary Insertion Sort`, sort the *records* (not just single fields) in non-decreasing order based on the values in each of the three "field" columns.  
+This means the sorting must be performed **three times**: once for `field1`, once for `field2`, and once for `field3`.  
+
+Measure execution times while varying the pivot selection strategy in `Quick Sort`, and write a short report describing the results and your analysis.  
+If sorting takes longer than **10 minutes**, you may interrupt the execution and report the operation as failed.  
+
+Questions to address in the report:  
+
+- Are the results what you expected? Why or why not?  
+- If not, what hypotheses can you make about the discrepancies?  
+- Does one algorithm perform better than the other?  
+- How does the pivot selection strategy affect `Quick Sort` performance?  
+
+**Reminder**: the file `records.csv` **MUST NOT be committed to GIT!**  
+
+---
+
+### Exercise 2 – Skip List  
+
+### Required Language: C  
+
+---
+
+### Task  
+
+Implement a data structure called `skip_list`.  
+A `skip_list` is a type of linked list that stores an *ordered list* of elements.  
+
+Unlike standard linked lists, a `skip_list` is a **probabilistic data structure** that supports search operations in **O(log n)** time. Insertions and deletions can also be performed in **O(log n)**. For this reason, skip lists are often used for indexing.  
+
+Each node of a linked list contains a pointer to the next element. To find an element, you must traverse the list sequentially.  
+A `skip_list` accelerates search by adding "express lanes" that allow skipping parts of the list. Each node contains not just one pointer but an **array of pointers** to further nodes.  
+
+Example:  
+
+![Example of a `skip_list`. From the node containing 6, you can directly jump to nodes 9 and 25 without visiting the others.](skiplist.png)  
+
+---
+
+### Suggested Data Structure  
+
+```c
+#define MAX_HEIGHT ....
+
+typedef struct _SkipList SkipList;
+typedef struct _Node Node;
+
+struct _SkipList {
+  Node *head;
+  unsigned int max_level;
+  int (*compare)(void*, void*);
+};
+
+struct _Node {
+  Node **next;
+  unsigned int size;
+  void *item;
+};
+```
+
+- MAX_HEIGHT: constant defining the maximum number of pointers per node
+- unsigned int size: number of pointers in the current node
+- unsigned int max_level: maximum level currently in use among all nodes
+
+### Required Operations
+- insertSkipList:
+```
+insertSkipList(list, I)
+
+    new = createNode(I, randomLevel())
+    if new->size > list->max_level
+        list->max_level = new->size
+
+    x = list->head
+    for k = list->max_level downto 1 do
+        if (x->next[k] == NULL || I < x->next[k]->item)
+            if k < new->size {
+              new->next[k] = x->next[k]
+              x->next[k] = new
+            }
+        else
+            x = x->next[k]
+```
+- randomLevel:
+```
+randomLevel()
+    lvl = 1
+    while random() < 0.5 and lvl < MAX_HEIGHT do
+        lvl = lvl + 1
+    return lvl
+```
+
+- searchSkipList:
+```
+searchSkipList(list, I)
+    x = list->head
+    for i = list->max_level downto 1 do
+        while x->next[i]->item < I do
+            x = x->next[i]
+
+    x = x->next[1]
+    if x->item == I then
+        return x->item
+    else
+        return failure
+```
+
+#### Additional Requirements
+Provide functions to create an empty skip_list and delete an existing one (freeing all allocated memory).
+Implement unit tests for all operations according to the Unit Testing guidelines.
+
+---
+
+### Exercise 3 
+
+### Required Language: Java
+
+---
+
+Task
+Implement a library that provides a Min Heap data structure.
+Requirements:
+- Represent the heap internally using an array (other support structures may be used if necessary).
+- Support an arbitrary number of elements (not known in advance).
+- Be generic regarding the type of elements stored.
+- Be generic regarding the comparison criterion between elements.
+The library must support at least the following operations (with their required complexities, where n = number of elements):
+- Create an empty min heap – O(1)
+- Insert an element – O(log n)
+- Return heap size – O(1)
+- Return parent of an element – O(1)
+- Return left child of an element – O(1)
+- Return right child of an element – O(1)
+- Extract the minimum element – O(log n)
+- Decrease the value of an element – O(log n)
+
+---
+### Unit Testing
+Implement unit tests for the library according to the Unit Testing guidelines.
+
+---
+
+### Exercise 4 
+
+### Required Language: Java
+---
+Task
+Implement a library that provides a Graph data structure optimized for sparse data.
+The graph must support both directed and undirected graphs.
+(Hint: an undirected graph can be implemented as a directed graph by inserting both (a, b) and (b, a) edges.)
+The implementation must be generic with respect to node types and edge labels.
+The library must support at least the following operations (with required complexities, where n = number of nodes or edges as appropriate):
+- Create empty graph – O(1)
+- Add node – O(1)
+- Add edge – O(1)
+- Check if graph is directed – O(1)
+- Check if graph contains a node – O(1)
+- Check if graph contains an edge – O(1) (*)
+- Delete node – O(n)
+- Delete edge – O(1) (*)
+- Get number of nodes – O(1)
+- Get number of edges – O(n)
+- Retrieve nodes – O(n)
+- Retrieve edges – O(n)
+- Retrieve neighbors of a node – O(1) (*)
+- Retrieve edge label between two nodes – O(1) (*)
+(*) Assuming adjacency lists are used and graphs are sparse.
+
+---
+
+### Unit Testing
+Implement unit tests for the library according to the Unit Testing guidelines.
+
+---
+
+#### Using the Graph and Heap Libraries
+Implement Dijkstra’s algorithm for single-source shortest paths in a directed weighted graph (with non-negative edge weights).
+The implementation must:
+- Work with the custom Graph library (Exercise 4).
+- Use the custom Min Heap library (Exercise 3) as a priority queue.
+
+---
+
+#### Application with Dijkstra
+Write an application that uses the implemented Dijkstra algorithm to compute shortest paths from Torino on the graph described in:
+https://datacloud.di.unito.it/index.php/s/PirTJpq4JMnpH3G
+The file italian_dist_graph.csv contains distances (in meters) between Italian cities and some of their nearest neighbors.
+CSV format:
+- Fields separated by commas
+- Records separated by \n
+Each record contains:
+- city1: (string) source city name (can contain spaces, no commas)
+- city2: (string) destination city name (can contain spaces, no commas)
+- distance: (float) distance in meters between the two cities
+Notes:
+- Treat the file as containing undirected edges (insert both directions).
+- The dataset contains inaccuracies and inconsistencies.
+
+Reminder: the file italian_dist_graph.csv MUST NOT be committed to GIT!
+---
+#### Validation
+A correct implementation of Dijkstra’s algorithm, run on italian_dist_graph.csv, should find a shortest path between Torino and Catania of approximately 1207.68 km.
